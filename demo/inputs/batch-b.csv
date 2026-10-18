@@ -1,4 +1,4 @@
-currency;amount;customer;order_id;note
+﻿currency;amount;customer;order_id;note
 USD;19.90; Alice ;00001;first order
  USD ;12.50;Dana;00004;quoted, comma
 USD;9.00;陈同学;00003;needs confirmation

@@ -1,4 +1,4 @@
-order_id,customer,amount,currency,note
+﻿order_id,customer,amount,currency,note
 00001,Alice,19.90,USD,first order
 00002,Bob,10.00,USD,
 00005,Eli,5.00,USD,
