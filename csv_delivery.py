@@ -91,39 +91,73 @@ def write_csv(path: Path, headers, rows):
         writer.writerows(rows)
 
 
-def write_preview(path: Path, report: dict, headers: list[str], rows: list[Record]):
-    escape = lambda value: html.escape(str(value))
-    head = "".join(f"<th>{escape(column)}</th>" for column in headers)
-    body = "".join("<tr>" + "".join(f"<td>{escape(cell)}</td>" for cell in row.values) + "</tr>" for row in rows[:20])
-    counts = report["counts"]
-    path.write_text(
-        '<!doctype html><html lang="zh-CN"><meta charset="utf-8">'
-        '<meta name="viewport" content="width=device-width,initial-scale=1">'
-        '<title>CSV 交付检查 / Delivery check</title>'
-        '<style>body{font:16px/1.7 system-ui,sans-serif;max-width:1050px;margin:40px auto;padding:0 24px;color:#173042;background:#f8fafb}'
-        'h1{line-height:1.3}table{border-collapse:collapse;width:100%;background:white}th,td{border:1px solid #dbe3e9;padding:8px;text-align:left}'
-        'th{background:#e8f0f4}code{background:#e8f0f4;padding:3px 6px}.note{border-left:4px solid #d29c36;padding:12px 18px;background:#fff8e8}'
-        '.scroll{overflow:auto}.counts{font-size:19px;font-weight:600}</style>'
-        '<h1>CSV 交付检查<br><small>Local delivery check</small></h1>'
-        '<p>处理在本机完成，没有上传文件，也没有调用 AI 或其他网络服务。</p>'
-        f'<p class="counts">输入 {counts["input_records"]} 条 · 可交付 {counts["clean_records"]} 条 · '
-        f'完全重复 {counts["exact_duplicates_removed"]} 条 · 待确认 {counts["exception_records"]} 条</p>'
-        '<p class="note">相同编号对应不同内容时，所有冲突记录均放入 <code>exceptions.csv</code>，等待确认。'
-        '不会猜测应该保留哪一条。原文件保持不变。</p>'
-        '<p>字段保持文本，包括编号的前导零与金额原有的小数位。用 Excel 查看 CSV 时，请通过“数据 → 从文本/CSV”导入，'
-        '将编号列设为文本；直接双击 CSV 可能触发 Excel 自动转换。</p>'
-        '<h2>交付数据预览（最多 20 条）</h2>'
-        f'<div class="scroll"><table><thead><tr>{head}</tr></thead><tbody>{body}</tbody></table></div>'
-        '<h2>交付文件</h2><ul><li><a href="clean.csv">clean.csv</a>：整理后的数据</li>'
-        '<li><a href="exceptions.csv">exceptions.csv</a>：需确认的记录及来源</li>'
-        '<li><a href="duplicates.csv">duplicates.csv</a>：被移除的完全重复记录</li>'
-        '<li><a href="report.json">report.json</a>：规则、计数及原文件校验值</li></ul>'
-        '<p>此报告只证明所列规则执行及计数结果。它不证明业务数据本身正确，也不证明任何付款到账。</p></html>',
-        encoding="utf-8",
-    )
+def write_preview(path: Path, report: dict, headers: list[str], rows: list[Record],
+                  exceptions=(), duplicates=()):
+    def escape(value):
+        return html.escape(str(value))
+
+    def bilingual(english, chinese):
+        return f'<span class="en">{escape(english)}</span><span class="zh">{escape(chinese)}</span>'
+
+    def table(records, *, audit=False):
+        columns = ([bilingual("Reason", "原因")] if audit else [])
+        columns += [escape(column) for column in headers]
+        columns += [bilingual("Source · line", "来源 · 行号")]
+        head = "".join(f'<th scope="col">{column}</th>' for column in columns)
+        body = []
+        labels = {"conflicting_key": ("Conflicting ID", "编号冲突"),
+                  "missing_key": ("Missing ID", "编号缺失"),
+                  "exact_duplicate": ("Exact duplicate", "完全重复")}
+        for entry in records[:20]:
+            record, reason = entry if audit else (entry, None)
+            cells = []
+            if reason:
+                label = bilingual(*labels.get(reason, (reason, reason)))
+                style = "reason duplicate" if reason == "exact_duplicate" else "reason"
+                cells.append(f'<td><span class="{style}">{label}</span></td>')
+            cells.extend(f'<td class="cell-value">{escape(cell)}</td>' for cell in record.values)
+            cells.append(f'<td class="source-ref">{escape(record.source)} · {record.line}</td>')
+            body.append("<tr>" + "".join(cells) + "</tr>")
+        if not body:
+            body.append(f'<tr><td class="empty" colspan="{len(columns)}">'
+                        + bilingual("No records in this view.", "此分类暂无记录。") + "</td></tr>")
+        return f'<div class="scroll" tabindex="0"><table><thead><tr>{head}</tr></thead><tbody>{"".join(body)}</tbody></table></div>'
+
+    counts, rules = report["counts"], report["rules"]
+    on_off = lambda enabled: bilingual("Enabled", "启用") if enabled else bilingual("Off", "关闭")
+    rule_items = [
+        (bilingual("KEY COLUMN", "编号列"), escape(rules["key"]) if rules["key"] is not None else bilingual("Not selected", "未指定")),
+        (bilingual("OUTER WHITESPACE TRIM", "首尾空格整理"), on_off(rules["trim_outer_whitespace"])),
+        (bilingual("EXACT ROW DEDUPLICATION", "整行完全去重"), on_off(rules["dedupe_exact_rows"])),
+        (bilingual("CONFLICT POLICY", "冲突处理"), bilingual("Keep all conflicting versions for review", "全部冲突版本单独保留，等待确认")),
+    ]
+    sources = "".join(
+        '<div class="hash-source"><strong>' + escape(source["file"]) + '</strong> · '
+        + str(source["records"]) + ' ' + bilingual("records", "条记录")
+        + '<code>SHA-256 ' + escape(source["sha256"]) + '</code></div>' for source in report["sources"])
+    demo_label = ('<span class="demo-label">' + bilingual("Synthetic demo", "合成数据演示") + '</span> · '
+                  if report.get("synthetic_demo") else "")
+    replacements = {
+        "INPUT": str(counts["input_records"]), "CLEAN": str(counts["clean_records"]),
+        "EXCEPTIONS": str(counts["exception_records"]), "DUPLICATES": str(counts["exact_duplicates_removed"]),
+        "SOURCE_COUNT": str(len(report["sources"])), "DEMO_LABEL": demo_label,
+        "CLEAN_TABLE": table(rows), "REVIEW_TABLE": table(exceptions, audit=True),
+        "DUPLICATE_TABLE": table([(record, "exact_duplicate") for record in duplicates], audit=True),
+        "RULES": "".join(f'<div><strong>{label}</strong>{value}</div>' for label, value in rule_items),
+        "SOURCES": sources,
+        "TRACK": "".join(f'<span style="flex:{count};background:{colour}"></span>' for count, colour in
+                         [(counts["clean_records"], "#85c9b1"), (counts["exception_records"], "#e9bf70"),
+                          (counts["exact_duplicates_removed"], "#9cb3c9")] if count),
+    }
+    # Substitute only template tokens; file contents must never become markup or template instructions.
+    import re
+    template = Path(__file__).with_name("preview_template.html").read_text(encoding="utf-8")
+    rendered = re.sub(r"@@([A-Z_]+)@@", lambda match: replacements[match.group(1)], template)
+    path.write_text(rendered, encoding="utf-8")
 
 
-def deliver(inputs, output, *, key=None, trim=False, dedupe_exact=False, encoding="utf-8-sig", max_rows=100000):
+def deliver(inputs, output, *, key=None, trim=False, dedupe_exact=False, encoding="utf-8-sig", max_rows=100000,
+            synthetic_demo=False):
     paths = [Path(item).resolve() for item in inputs]
     destination = Path(output).resolve()
     if not paths or max_rows < 1:
@@ -184,6 +218,8 @@ def deliver(inputs, output, *, key=None, trim=False, dedupe_exact=False, encodin
         "limitations": ["No business-value inference or correction", "No payment verification",
                         "CSV viewers may infer numbers; import identifier columns as text"],
     }
+    if synthetic_demo:
+        report["synthetic_demo"] = True
     if len(all_records) != len(clean) + len(duplicates) + len(exceptions):
         raise DeliveryError("Internal record reconciliation failed; no output written.")
     destination.mkdir(parents=True, exist_ok=False)
@@ -194,7 +230,7 @@ def deliver(inputs, output, *, key=None, trim=False, dedupe_exact=False, encodin
     write_csv(destination / "duplicates.csv", audit_headers,
               ((record.source, record.line, "exact_duplicate", *record.values) for record in duplicates))
     (destination / "report.json").write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    write_preview(destination / "preview.html", report, headers, clean)
+    write_preview(destination / "preview.html", report, headers, clean, exceptions, duplicates)
     return report
 
 

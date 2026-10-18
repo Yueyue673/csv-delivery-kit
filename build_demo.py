@@ -39,17 +39,10 @@ def main():
             writer.writerow(columns)
             writer.writerows(rows)
     before = [hashlib.sha256(path.read_bytes()).hexdigest() for path in sources]
-    report = deliver(sources, root / "delivery", key="order_id", trim=True, dedupe_exact=True)
+    report = deliver(sources, root / "delivery", key="order_id", trim=True, dedupe_exact=True, synthetic_demo=True)
     assert report["counts"] == {"input_records": 9, "clean_records": 5, "exact_duplicates_removed": 1,
                                 "exception_records": 3, "conflicting_keys": 1, "missing_key_records": 1}
     assert before == [hashlib.sha256(path.read_bytes()).hexdigest() for path in sources]
-    preview = root / "delivery" / "preview.html"
-    preview.write_text(preview.read_text(encoding="utf-8").replace(
-        "<h1>", '<p class="note"><strong>合成数据演示 / Synthetic demo</strong><br>'
-        '此页面不是客户项目；尚无订单或收入。</p><h1>', 1), encoding="utf-8")
-    report["synthetic_demo"] = True
-    (root / "delivery" / "report.json").write_text(
-        json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     (root / "SYNTHETIC-DATA.txt").write_text(
         "All demonstration records are synthetic. No client work or revenue is claimed.\n"
         "所有演示数据均为合成数据。不是历史客户项目，没有成交或收入。\n", encoding="utf-8")
