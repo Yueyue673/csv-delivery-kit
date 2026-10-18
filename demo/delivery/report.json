@@ -1,0 +1,44 @@
+{
+  "format_version": 1,
+  "rules": {
+    "key": "order_id",
+    "trim_outer_whitespace": true,
+    "dedupe_exact_rows": true,
+    "encoding": "utf-8-sig",
+    "values_kept_as_text": true,
+    "conflict_policy": "quarantine_all"
+  },
+  "counts": {
+    "input_records": 9,
+    "clean_records": 5,
+    "exact_duplicates_removed": 1,
+    "exception_records": 3,
+    "conflicting_keys": 1,
+    "missing_key_records": 1
+  },
+  "sources": [
+    {
+      "file": "batch-a.csv",
+      "sha256": "7d02913b61f6c0c91ea3516a02ae356793df6de9034baffc62e3e8b8b8d29b79",
+      "delimiter": ",",
+      "records": 4,
+      "blank_records_skipped": 0,
+      "whitespace_changed_records": 0
+    },
+    {
+      "file": "batch-b.csv",
+      "sha256": "958aed8e936c715d5f3533514c54d21d12266095cac7c8c6601018ea0b08c791",
+      "delimiter": ";",
+      "records": 5,
+      "blank_records_skipped": 0,
+      "whitespace_changed_records": 2
+    }
+  ],
+  "reconciliation": "input_records = clean_records + exact_duplicates_removed + exception_records",
+  "limitations": [
+    "No business-value inference or correction",
+    "No payment verification",
+    "CSV viewers may infer numbers; import identifier columns as text"
+  ],
+  "synthetic_demo": true
+}

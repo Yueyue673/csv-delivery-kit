@@ -1,0 +1,6 @@
+order_id,customer,amount,currency,note
+00001,Alice,19.90,USD,first order
+00002,Bob,10.00,USD,
+00005,Eli,5.00,USD,
+00004,Dana,12.50,USD,"quoted, comma"
+00006,示例用户,0.00,USD,synthetic data

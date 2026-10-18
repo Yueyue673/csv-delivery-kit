@@ -1,0 +1,15 @@
+Validation / 验收记录
+Date: 2026-10-18 Asia/Shanghai
+Environment actually exercised: Windows, Python 3.12.14. Other platforms were not run.
+
+python -m unittest -v: 14 tests passed.
+Synthetic demonstration: 9 input records = 5 clean + 1 exact duplicate removed + 3 exceptions.
+All conflicting-key records are quarantined; none was selected as the correct business record.
+An actual CLI invocation against the two sample CSV files produced the same counts.
+Input file hashes stayed unchanged. Existing output folders are rejected.
+CSV text fields retain leading zeroes; Excel users must import identifier columns as text.
+No external service or paid API is used by this data-processing tool.
+
+Commercial status: no customer order, no agreed payment, and no money received.
+US$25 is a draft starting quote, not a validated market price or an income forecast.
+All demonstration data is synthetic. No PayPal address or account credential is included.

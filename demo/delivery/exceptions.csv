@@ -1,0 +1,4 @@
+source_file,source_line,reason,data.order_id,data.customer,data.amount,data.currency,data.note
+batch-a.csv,4,conflicting_key,00003,陈同学,8.00,USD,needs confirmation
+batch-b.csv,4,conflicting_key,00003,陈同学,9.00,USD,needs confirmation
+batch-b.csv,5,missing_key,,Missing identifier,13.00,USD,needs an ID

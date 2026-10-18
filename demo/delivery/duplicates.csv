@@ -1,0 +1,2 @@
+source_file,source_line,reason,data.order_id,data.customer,data.amount,data.currency,data.note
+batch-b.csv,2,exact_duplicate,00001,Alice,19.90,USD,first order
