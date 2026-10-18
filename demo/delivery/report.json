@@ -37,7 +37,6 @@
   "reconciliation": "input_records = clean_records + exact_duplicates_removed + exception_records",
   "limitations": [
     "No business-value inference or correction",
-    "No payment verification",
     "CSV viewers may infer numbers; import identifier columns as text"
   ],
   "synthetic_demo": true

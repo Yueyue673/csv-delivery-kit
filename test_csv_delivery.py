@@ -5,6 +5,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest import mock
 from pathlib import Path
 
 from csv_delivery import DeliveryError, deliver
@@ -129,6 +130,52 @@ class DeliveryTests(unittest.TestCase):
         preview = (self.out / "preview.html").read_text(encoding="utf-8")
         self.assertIn("&lt;b&gt;A&amp;B&lt;/b&gt;", preview)
         self.assertNotIn("<b>A&B</b>", preview)
+
+    def test_report_failure_removes_partial_outputs_and_allows_retry(self):
+        path = self.source("input.csv", "id,value\n001,A\n002,B\n")
+        before = path.read_bytes()
+        with mock.patch("csv_delivery.write_preview", side_effect=OSError("interrupted report write")):
+            with self.assertRaises(OSError):
+                deliver([path], self.out)
+        self.assertFalse(self.out.exists())
+        self.assertEqual(path.read_bytes(), before)
+        self.assertEqual(deliver([path], self.out)["counts"]["clean_records"], 2)
+
+    def test_interrupted_csv_write_rolls_back_the_partial_file(self):
+        path = self.source("input.csv", "id,value\n001,A\n002,B\n")
+        original_writer = csv.writer
+
+        def interrupted_writer(*args, **kwargs):
+            writer = original_writer(*args, **kwargs)
+
+            class InterruptedWriter:
+                def writerow(self, row):
+                    return writer.writerow(row)
+
+                def writerows(self, rows):
+                    writer.writerow(next(iter(rows)))
+                    raise OSError("interrupted after writing a real record")
+
+            return InterruptedWriter()
+
+        with mock.patch("csv_delivery.csv.writer", side_effect=interrupted_writer):
+            with self.assertRaises(OSError):
+                deliver([path], self.out)
+        self.assertFalse(self.out.exists())
+        self.assertEqual(deliver([path], self.out)["counts"]["clean_records"], 2)
+
+    def test_rollback_preserves_unrelated_files(self):
+        path = self.source("input.csv", "id,value\n001,A\n")
+
+        def interrupted_report(*args, **kwargs):
+            (self.out / "external-note.txt").write_text("keep", encoding="utf-8")
+            raise OSError("report interrupted")
+
+        with mock.patch("csv_delivery.write_preview", side_effect=interrupted_report):
+            with self.assertRaisesRegex(DeliveryError, "cleanup was incomplete"):
+                deliver([path], self.out)
+        self.assertEqual(list(self.out.iterdir()), [self.out / "external-note.txt"])
+        self.assertEqual((self.out / "external-note.txt").read_text(), "keep")
 
     def test_real_cli_reports_counts_and_error_exit(self):
         path = self.source("input.csv", "id,value\n0001,A\n0001,A\n")

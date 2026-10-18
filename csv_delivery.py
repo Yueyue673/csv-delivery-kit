@@ -9,6 +9,7 @@ import html
 import io
 import json
 from collections import defaultdict
+from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -84,15 +85,24 @@ def read_source(path: Path, encoding: str, trim: bool, expected: list[str] | Non
     }
 
 
-def write_csv(path: Path, headers, rows):
-    with path.open("w", encoding="utf-8-sig", newline="") as stream:
+@contextmanager
+def new_output(path: Path, created_paths=None, *, encoding="utf-8", newline=None):
+    # Track only files actually created by this run. Never remove an unrelated file on rollback.
+    with path.open("x", encoding=encoding, newline=newline) as stream:
+        if created_paths is not None:
+            created_paths.append(path)
+        yield stream
+
+
+def write_csv(path: Path, headers, rows, *, created_paths=None):
+    with new_output(path, created_paths, encoding="utf-8-sig", newline="") as stream:
         writer = csv.writer(stream, lineterminator="\n")
         writer.writerow(headers)
         writer.writerows(rows)
 
 
 def write_preview(path: Path, report: dict, headers: list[str], rows: list[Record],
-                  exceptions=(), duplicates=()):
+                  exceptions=(), duplicates=(), *, created_paths=None):
     def escape(value):
         return html.escape(str(value))
 
@@ -153,7 +163,8 @@ def write_preview(path: Path, report: dict, headers: list[str], rows: list[Recor
     import re
     template = Path(__file__).with_name("preview_template.html").read_text(encoding="utf-8")
     rendered = re.sub(r"@@([A-Z_]+)@@", lambda match: replacements[match.group(1)], template)
-    path.write_text(rendered, encoding="utf-8")
+    with new_output(path, created_paths, newline="\n") as stream:
+        stream.write(rendered)
 
 
 def deliver(inputs, output, *, key=None, trim=False, dedupe_exact=False, encoding="utf-8-sig", max_rows=100000,
@@ -215,7 +226,7 @@ def deliver(inputs, output, *, key=None, trim=False, dedupe_exact=False, encodin
                    "missing_key_records": sum(reason == "missing_key" for _, reason in exceptions)},
         "sources": sources,
         "reconciliation": "input_records = clean_records + exact_duplicates_removed + exception_records",
-        "limitations": ["No business-value inference or correction", "No payment verification",
+        "limitations": ["No business-value inference or correction",
                         "CSV viewers may infer numbers; import identifier columns as text"],
     }
     if synthetic_demo:
@@ -223,14 +234,38 @@ def deliver(inputs, output, *, key=None, trim=False, dedupe_exact=False, encodin
     if len(all_records) != len(clean) + len(duplicates) + len(exceptions):
         raise DeliveryError("Internal record reconciliation failed; no output written.")
     destination.mkdir(parents=True, exist_ok=False)
-    write_csv(destination / "clean.csv", headers, (record.values for record in clean))
-    audit_headers = ["source_file", "source_line", "reason", *["data." + column for column in headers]]
-    write_csv(destination / "exceptions.csv", audit_headers,
-              ((record.source, record.line, reason, *record.values) for record, reason in exceptions))
-    write_csv(destination / "duplicates.csv", audit_headers,
-              ((record.source, record.line, "exact_duplicate", *record.values) for record in duplicates))
-    (destination / "report.json").write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    write_preview(destination / "preview.html", report, headers, clean, exceptions, duplicates)
+    created_paths = []
+    try:
+        write_csv(destination / "clean.csv", headers, (record.values for record in clean), created_paths=created_paths)
+        audit_headers = ["source_file", "source_line", "reason", *["data." + column for column in headers]]
+        write_csv(destination / "exceptions.csv", audit_headers,
+                  ((record.source, record.line, reason, *record.values) for record, reason in exceptions),
+                  created_paths=created_paths)
+        write_csv(destination / "duplicates.csv", audit_headers,
+                  ((record.source, record.line, "exact_duplicate", *record.values) for record in duplicates),
+                  created_paths=created_paths)
+        with new_output(destination / "report.json", created_paths) as stream:
+            stream.write(json.dumps(report, ensure_ascii=False, indent=2) + "\n")
+        write_preview(destination / "preview.html", report, headers, clean, exceptions, duplicates,
+                      created_paths=created_paths)
+    except BaseException as error:
+        cleanup_failures = []
+        for path in reversed(created_paths):
+            try:
+                path.unlink(missing_ok=True)
+            except OSError:
+                cleanup_failures.append(path.name)
+        try:
+            destination.rmdir()
+        except OSError:
+            cleanup_failures.append("output directory")
+        if cleanup_failures:
+            raise DeliveryError(
+                f"Delivery failed and cleanup was incomplete at {destination}; "
+                "do not treat the remaining directory as a completed delivery. "
+                "Unrelated files were not removed."
+            ) from error
+        raise
     return report
 
 

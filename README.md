@@ -1,60 +1,80 @@
 # CSV Delivery
 
-**Two exports. One organised file. A clear list of decisions.**
+**Several exports. One organised file. Every exception accounted for.**
 
-Merge CSV exports without losing track of duplicates or conflicting identifiers. Get the output you can use, the rows that need your decision, and a script you can run again.
+Bring CSV files with the same columns in a different order, mixed separators, repeated rows or conflicting order IDs. Get a merged file, a separate list of decisions, and the script to run it again.
 
-## See a real processing result
+![Synthetic 5000-row acceptance run: 3850 clean, 550 for review, 600 exact duplicates.](assets/result-map.svg)
 
-The included **synthetic demo** starts with two files whose columns and separators differ:
+[Download the example](https://github.com/Yueyue673/csv-delivery-kit/archive/refs/heads/main.zip) · [Inspect the run record](validation/batch-check.json) · [Ask for an adaptation](https://github.com/Yueyue673/csv-delivery-kit/issues/new?template=csv-task.yml)
 
-| In | Out |
+The diagram summarises an **original synthetic test**, using 3 files and 5,000 records. It is a data-flow diagram; the interactive HTML report is included separately. [Inspect the actual run record](validation/batch-check.json) or reproduce it locally:
+
+```sh
+python verify_batch.py
+```
+
+This creates the inputs, runs the real CLI twice, compares every output field and audit source line with an independently defined expected result, and checks that the input files stayed unchanged. Both runs produced identical CSV, JSON and HTML files on Windows with Python 3.12.14.
+
+## See what a decision looks like
+
+The smaller [9-row example](demo/inputs) is easy to inspect by eye:
+
+| What came in | What you receive |
 | --- | --- |
-| 9 input records across 2 files | 5 clean records + 3 records for review + 1 exact duplicate |
-| Order `00003` appears with `8.00` and `9.00` | Both versions stay in the review file, with the source file and line |
-| IDs such as `00001`, amounts such as `19.90` | Text preserved in the CSV; import identifier columns as Text in Excel |
+| Two exports with different column order and separators | One consistent CSV |
+| Order `00003` has amounts `8.00` and `9.00` | Both versions in [exceptions.csv](demo/delivery/exceptions.csv), with their original file and line |
+| One repeated full row | One output record and a separate [duplicate audit](demo/delivery/duplicates.csv) |
+| An ID such as `00001`, an amount such as `19.90` | Text values preserved in [clean.csv](demo/delivery/clean.csv) |
 
-Download the project, then open [the interactive report](demo/delivery/preview.html) locally. Switch between clean output, review records and duplicates; choose English or Chinese. All four delivery files are linked from the report. No external scripts, fonts or network access are needed.
+Download the project and open [demo/delivery/preview.html](demo/delivery/preview.html) locally. It includes English/Chinese views, clean/review/duplicate tabs and links to every delivery file. The generated report is self-contained, with no external scripts or fonts.
 
-**For a small paid adaptation:** the proposed US$25 starter covers up to 3 CSVs, 5,000 records and 20 columns under one agreed rule set. It includes the result files, rerunnable script, operating notes and one correction against the agreed scope. A redacted sample is enough to confirm whether the job fits and agree timing. This is a service proposal; the tool itself is MIT licensed.
+## Need this adapted to your files?
 
-## What the tool does
+**Proposed starter: US$25** for up to 3 CSVs, 5,000 records and 20 columns under one agreed rule set. You receive:
 
-A Python CLI for merging CSV exports while keeping conflicting records visible for review. Values stay as text, including leading-zero identifiers and decimal formatting.
+- The merged CSV, exception list and duplicate audit.
+- A check report plus a script you can run again.
+- Short operating notes and one correction against the agreed requirements.
 
-- Aligns matching columns even when their order differs; detects comma, semicolon, tab and pipe delimiters.
-- Trimming and exact-row deduplication are opt-in.
-- With `--key`, every record sharing a conflicting identifier goes to the exceptions file. A missing key is also an exception.
-- Produces clean data, duplicate and exception audits, input hashes, record counts and an HTML preview.
-- Processes files locally using Python's standard library.
+[Describe the result you need](https://github.com/Yueyue673/csv-delivery-kit/issues/new?template=csv-task.yml). One made-up input/output example is enough to begin. We confirm the actual rules, price and delivery date before work starts. This is a public issue: keep client data private.
 
-## Run
+The tool is free under the MIT licence. Paid work covers adapting the rules, checking the agreed inputs and preparing your handover.
 
-Python 3.10 or later; no third-party packages required.
+## Run the tool
+
+Python 3.10 or later; standard library only. Keep `preview_template.html` beside `csv_delivery.py`.
 
 ```sh
 python csv_delivery.py demo/inputs/batch-a.csv demo/inputs/batch-b.csv --output delivery --key order_id --trim --dedupe-exact
 ```
 
-The output directory must be new. Existing directories are rejected, and input files are left unchanged. Use `--encoding gb18030` for GB18030 input. The default limit is 100,000 nonblank records; `--max-rows` changes it.
+- Matching column names are aligned even when their order differs.
+- Comma, semicolon, tab and pipe separators are detected automatically.
+- Whitespace trimming and exact-row removal happen only when selected.
+- With `--key`, every conflicting version and every missing-key record goes to the exception file.
+- The output directory must be new; inputs and existing output directories are left unchanged.
+- `--encoding gb18030` supports GB18030 input. The default row limit is 100,000; `--max-rows` changes it.
 
-## Synthetic example
+If output writing fails, the tool attempts to remove only files it created in that run so the same destination can be retried. It preserves unrelated files and explicitly reports an incomplete cleanup if it cannot remove the directory.
 
-The included example has **9 input records = 5 clean records + 1 removed exact duplicate + 3 exceptions**. Both conflicting versions of an order are retained in the exceptions audit.
-
-See [the count report](demo/delivery/report.json), [exception rows](demo/delivery/exceptions.csv), and [HTML preview source](demo/delivery/preview.html). All example names, identifiers and amounts are synthetic. Keep `preview_template.html` beside `csv_delivery.py` when running the tool; generated reports are self-contained.
+## Verify it
 
 ```sh
 python -m unittest -v
-python build_demo.py
+python verify_batch.py
+# Optional: retain the synthetic inputs, both deliveries and result.json in a new directory:
+python verify_batch.py --output batch-evidence
 ```
 
-The 14 regression tests cover parsing, reordered columns, text preservation, duplicate and conflict rules, malformed input, row limits and output protection. Local validation used Windows and Python 3.12.14; see [VALIDATION.txt](VALIDATION.txt).
+**17 regression tests** cover parsing, text preservation, duplicate/conflict handling, malformed inputs, output protection and recovery after interrupted writes. The **5,000-row acceptance check** additionally verifies complete field values, audit reasons, physical source line numbers, rules, hashes and byte-identical reruns. It includes Chinese text, leading-zero IDs, different decimal string lengths, quoted commas, quotes and embedded newlines. [Validation notes](VALIDATION.txt).
 
-## Boundaries
+To rebuild the small demo from scratch, run `python build_demo.py` in a fresh copy without an existing `demo` directory. The builder deliberately refuses to overwrite its earlier result.
 
-The tool does not infer the correct business value or choose a winner among conflicting records. Different column sets are rejected; column mapping requires an explicit decision first.
+## Import and processing notes
 
-CSV files do not carry column types. When importing into Excel, set identifier columns to **Text** to preserve leading zeroes; Excel may otherwise convert them automatically. Import untrusted fields as text as well. This tool does not evaluate spreadsheet formulas.
+CSV files do not carry column types. In Excel, use **Data → From Text/CSV** and import identifier columns as **Text** to retain leading zeroes. Import untrusted fields as text as well; the tool does not evaluate spreadsheet formulas.
+
+The tool applies the selected rules. It does not choose the correct business value from conflicting records. Different column sets require an agreed mapping first. The included examples use synthetic data; actual customer files and target applications need their own acceptance checks. No XLSX, OCR or third-party integration is included in this example.
 
 MIT licensed. [中文说明](README.txt).

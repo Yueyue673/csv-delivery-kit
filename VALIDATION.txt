@@ -1,15 +1,37 @@
 Validation / 验收记录
-Date: 2026-10-18 Asia/Shanghai
-Environment actually exercised: Windows, Python 3.12.14. Other platforms were not run.
+2026-10-18 · Windows · CPython 3.12.14
 
-python -m unittest -v: 14 tests passed.
-Synthetic demonstration: 9 input records = 5 clean + 1 exact duplicate removed + 3 exceptions.
-All conflicting-key records are quarantined; none was selected as the correct business record.
-An actual CLI invocation against the two sample CSV files produced the same counts.
-Input file hashes stayed unchanged. Existing output folders are rejected.
-CSV text fields retain leading zeroes; Excel users must import identifier columns as text.
-No external service or paid API is used by this data-processing tool.
+Regression checks
+python -m unittest -v: 17 tests passed.
+Coverage includes parsing, reordered columns, quoted/multiline text, encoding, text preservation,
+row limits, duplicate/conflict rules, malformed input and output protection.
+Interrupted CSV writes and a failed report generation remove this run's created output files.
+A subsequent attempt can reuse the output path after successful cleanup.
+If an unrelated file appears, it is preserved and incomplete cleanup is explicitly reported.
 
-Commercial status: no customer order, no agreed payment, and no money received.
-US$25 is a draft starting quote, not a validated market price or an income forecast.
-All demonstration data is synthetic. No PayPal address or account credential is included.
+Reproducible batch check
+python verify_batch.py
+Original synthetic inputs: 3 CSVs, 5 columns, exactly 5,000 nonblank records.
+4,000 base IDs + 600 exact duplicates + 150 alternative amounts + 250 missing-ID rows.
+Expected and actual: 3,850 clean + 600 duplicates + 550 exceptions.
+There are 150 conflicting IDs and 250 missing-ID records.
+
+Two real CLI subprocess runs were compared with an independently defined fixture oracle.
+Checks include complete field multisets, exception reasons, original physical source lines,
+source delimiters and trim counts, input SHA-256 preservation and recorded processing rules.
+All five output files matched byte for byte across the two runs.
+Source fingerprints and detailed results: validation/batch-check.json.
+Elapsed timings in that record are observations from this machine, not a performance promise.
+The script prints a fresh result on every run; --output NEW_DIRECTORY retains its evidence.
+
+Small inspectable example
+9 input records = 5 clean + 1 duplicate + 3 exceptions.
+All conflicting-key versions are retained; none is chosen as the correct business value.
+Original input files are unchanged. Examples are synthetic, not customer case studies.
+
+Scope of evidence
+Other operating systems, customer files, browser interactions and target application imports
+were not exercised by this validation record. The batch check tests 5 columns, not every
+possible 20-column service input. Real jobs need acceptance checks for their agreed data/rules.
+CSV users must import identifier columns as text to preserve leading zeroes in Excel.
+This tool makes no external service or paid API calls.

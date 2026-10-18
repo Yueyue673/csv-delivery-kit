@@ -1,0 +1,25 @@
+name: CSV adaptation request
+description: Describe a CSV result you need and ask for a small fixed-price adaptation.
+title: "CSV task: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        A short description is enough to start. Price and timing are confirmed after reviewing the task.
+        This is a public thread: use made-up or redacted examples. Keep customer records and account details private.
+  - type: textarea
+    id: result
+    attributes:
+      label: What result do you need?
+      placeholder: "For example: combine weekly order exports, remove exact duplicates, and list conflicting order IDs."
+    validations:
+      required: true
+  - type: textarea
+    id: example
+    attributes:
+      label: A small made-up example (optional)
+      description: Show an input row and what you want the result to look like.
+  - type: input
+    id: timing
+    attributes:
+      label: Timing or file-format needs (optional)

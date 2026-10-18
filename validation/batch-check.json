@@ -1,0 +1,140 @@
+{
+  "format_version": 1,
+  "check": "csv_delivery_5000_synthetic_acceptance",
+  "started_at_utc": "2026-10-18T11:36:58.004098+00:00",
+  "success": true,
+  "environment": {
+    "python": "3.12.14",
+    "implementation": "CPython",
+    "platform": "Windows"
+  },
+  "evidence_retained": false,
+  "fixture": {
+    "synthetic": true,
+    "customer_data": false,
+    "customer_case_study": false,
+    "description": "Original deterministic synthetic acceptance fixture, not a client project or benchmark claim.",
+    "input_records": 5000,
+    "base_unique_ids": 4000,
+    "exact_duplicate_rows_after_explicit_trim": 600,
+    "additional_conflicting_amount_versions": 150,
+    "missing_id_rows": 250,
+    "features": [
+      "three_column_orders",
+      "comma_semicolon_tab_sources",
+      "six_digit_leading_zero_ids",
+      "chinese_text",
+      "quoted_commas",
+      "embedded_newlines",
+      "double_quotes",
+      "two_three_and_four_decimal_places_preserved"
+    ],
+    "sources": [
+      {
+        "file": "batch-a.csv",
+        "sha256": "299cd2e467411c2360026af7f0f1afe7cae2ebadedf09e3ac082a05488784cb6",
+        "delimiter": ",",
+        "records": 1668,
+        "blank_records_skipped": 0,
+        "whitespace_changed_records": 242
+      },
+      {
+        "file": "batch-b.csv",
+        "sha256": "447e5d81c2edb74d8f751c80f2feadaec1a5b41509d8e30493887011d4de729f",
+        "delimiter": ";",
+        "records": 1666,
+        "blank_records_skipped": 0,
+        "whitespace_changed_records": 241
+      },
+      {
+        "file": "batch-c.csv",
+        "sha256": "8645683cfeb4119f9badaf794e50b5e1f4c6cb4847106fba060ae5e0f118b709",
+        "delimiter": "\t",
+        "records": 1666,
+        "blank_records_skipped": 0,
+        "whitespace_changed_records": 242
+      }
+    ]
+  },
+  "implementation_sha256": {
+    "csv_delivery.py": "c37ef3a6a5eafe95e682175e693f36c135602447b53421d4b72f01722150efae",
+    "preview_template.html": "f4a31bf298ad90cdda3df82fe1f77b80da6319c51e3d652f195bab6c91a6cf05",
+    "verify_batch.py": "31ff0cedfb0f650687a664ec493c0b9b35a8e01fe72ddc7556965ad0a571d6ca"
+  },
+  "expected_counts": {
+    "input_records": 5000,
+    "clean_records": 3850,
+    "exact_duplicates_removed": 600,
+    "exception_records": 550,
+    "conflicting_keys": 150,
+    "missing_key_records": 250
+  },
+  "runs": [
+    {
+      "name": "run-1",
+      "cli_exit_code": 0,
+      "elapsed_seconds": 0.140765,
+      "counts": {
+        "input_records": 5000,
+        "clean_records": 3850,
+        "exact_duplicates_removed": 600,
+        "exception_records": 550,
+        "conflicting_keys": 150,
+        "missing_key_records": 250
+      },
+      "checks_passed": [
+        "real_cli_success_and_exact_fixed_counts",
+        "complete_five_file_delivery_bundle",
+        "exact_source_hashes_delimiters_counts_and_trim_counts",
+        "exact_processing_rules",
+        "complete_clean_field_multiset_against_independent_oracle",
+        "complete_duplicate_field_multiset_with_original_source_lines",
+        "complete_exception_field_multiset_with_reasons_and_original_source_lines",
+        "original_input_sha256_unchanged"
+      ],
+      "output_sha256": {
+        "clean.csv": "979ea9241ef77e8eee60d57a458cdf39ba264613548ebaad6c51548e5a7cedef",
+        "duplicates.csv": "e4fac4f5614e7e0b397b8325bb67ddfbac3f96ecf16d6ccb579014403651211b",
+        "exceptions.csv": "e172eae0549f90781dd3611b4e2768df943b859a45d27cc5209a35fddeb2455a",
+        "report.json": "6c75254c62289e75f7d19428c2711c18e5740eb6d45667aca06befb6ed2a6534",
+        "preview.html": "011af33448207a4f9803da0c1b2d18c04f90010685500ea7dd7020115b1be8be"
+      }
+    },
+    {
+      "name": "run-2",
+      "cli_exit_code": 0,
+      "elapsed_seconds": 0.1347,
+      "counts": {
+        "input_records": 5000,
+        "clean_records": 3850,
+        "exact_duplicates_removed": 600,
+        "exception_records": 550,
+        "conflicting_keys": 150,
+        "missing_key_records": 250
+      },
+      "checks_passed": [
+        "real_cli_success_and_exact_fixed_counts",
+        "complete_five_file_delivery_bundle",
+        "exact_source_hashes_delimiters_counts_and_trim_counts",
+        "exact_processing_rules",
+        "complete_clean_field_multiset_against_independent_oracle",
+        "complete_duplicate_field_multiset_with_original_source_lines",
+        "complete_exception_field_multiset_with_reasons_and_original_source_lines",
+        "original_input_sha256_unchanged"
+      ],
+      "output_sha256": {
+        "clean.csv": "979ea9241ef77e8eee60d57a458cdf39ba264613548ebaad6c51548e5a7cedef",
+        "duplicates.csv": "e4fac4f5614e7e0b397b8325bb67ddfbac3f96ecf16d6ccb579014403651211b",
+        "exceptions.csv": "e172eae0549f90781dd3611b4e2768df943b859a45d27cc5209a35fddeb2455a",
+        "report.json": "6c75254c62289e75f7d19428c2711c18e5740eb6d45667aca06befb6ed2a6534",
+        "preview.html": "011af33448207a4f9803da0c1b2d18c04f90010685500ea7dd7020115b1be8be"
+      }
+    }
+  ],
+  "checks_passed": [
+    "two_real_cli_runs_against_independent_fixture_oracle",
+    "byte_identical_csv_json_and_html_outputs_on_rerun",
+    "stable_implementation_during_both_runs"
+  ],
+  "finished_at_utc": "2026-10-18T11:36:58.377428+00:00"
+}
