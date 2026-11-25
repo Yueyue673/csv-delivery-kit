@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>CSV delivery · results</title>
+<title>CSV delivery results</title>
 <style>
 :root{
   --paper:#f7f5ef;
@@ -76,7 +76,7 @@ h1{margin:0 0 10px;font-size:28px;font-weight:600;line-height:1.35;letter-spacin
 .counts{margin:0}
 .counts>div{
   display:grid;
-  grid-template-columns:minmax(9rem,14rem) 4.5rem minmax(0,1fr);
+  grid-template-columns:minmax(11rem,18rem) 4.5rem minmax(0,1fr);
   gap:4px 18px;
   align-items:baseline;
   padding:11px 0;
@@ -225,34 +225,34 @@ html[lang="zh-CN"] .zh{display:inline}
 <body>
 <div class="wrap">
 <header class="topbar">
-<a class="brand" href="#overview"><span class="en">CSV delivery</span><span class="zh">CSV 交付</span></a>
+<a class="brand" href="#overview" aria-label="CSV 整理交付"><span class="en">CSV delivery</span><span class="zh">CSV 整理交付</span></a>
 <nav aria-label="Page sections">
-<a href="#records"><span class="en">Records</span><span class="zh">记录</span></a>
-<a href="#files"><span class="en">Files</span><span class="zh">交付文件</span></a>
+<a href="#records"><span class="en">View records</span><span class="zh">查看记录</span></a>
+<a href="#files"><span class="en">Output files</span><span class="zh">结果文件</span></a>
 <button class="language" type="button" id="language" aria-label="Switch to Chinese">中文</button>
 </nav>
 </header>
 <main>
 <section class="overview" id="overview">
-<p class="kicker"><span class="en">Local report</span><span class="zh">本地报告</span></p>
-<h1><span class="en">Results</span><span class="zh">处理结果</span></h1>
-<p class="lede"><span class="en">Merge your exports. Set aside duplicates. See exactly which records need a decision, with their original source attached.</span><span class="zh">合并多份导出，分开重复记录。需要你确认的内容单独列出，附上原文件和行号。</span></p>
-<p class="actions"><a class="primary" href="clean.csv" download><span class="en">Download clean CSV</span><span class="zh">下载整理后的 CSV</span></a><a class="secondary" href="#records"><span class="en">View records</span><span class="zh">查看记录</span></a></p>
+<p class="kicker"><span class="en">Results of this run</span><span class="zh">这次整理的结果</span></p>
+<h1><span class="en">Several exports become one table.<br>Conflicts and duplicates are listed separately.</span><span class="zh">几份导出，合成一张主表。<br>冲突和重复会单独列出。</span></h1>
+<p class="lede"><span class="en">Merge the exports, list exact duplicates, and put records that need a decision in a separate file, with the original file and line number.</span><span class="zh">合并多份导出，完全重复的行单独列出。需要你确认的内容也单独列出，并附上原文件和行号。</span></p>
+<p class="actions"><a class="primary" href="clean.csv" download><span class="en">Download clean CSV</span><span class="zh">下载整理后的 CSV</span></a><a class="secondary" href="#records"><span class="en">Look at the results</span><span class="zh">先看结果</span></a></p>
 <p class="quiet"><span class="demo-label"><span class="en">Synthetic demo</span><span class="zh">合成数据演示</span></span> · <span class="en">Local processing · Original files unchanged</span><span class="zh">本机处理 · 原文件保持不变</span></p>
 <div class="summary" aria-label="Record reconciliation">
-<h2><span class="en">Counts</span><span class="zh">数量</span></h2>
+<h2><span class="en">The counts add up</span><span class="zh">数量可以对上</span></h2>
 <p class="summary-meta"><strong>9</strong> <span class="en">records in</span><span class="zh">条输入</span> · 2 <span class="en">source files, aligned by column name</span><span class="zh">份原文件，按列名对齐</span></p>
 <dl class="counts">
 <div><dt><span class="en">Clean output</span><span class="zh">整理后输出</span></dt><dd class="num">5</dd><dd class="note"><span class="en">Text values &amp; formatting preserved</span><span class="zh">保留文本值与原有小数位</span></dd></div>
-<div><dt><span class="en">Needs review</span><span class="zh">待确认</span></dt><dd class="num">3</dd><dd class="note"><span class="en">Conflicts &amp; missing identifiers</span><span class="zh">编号冲突、编号缺失的记录</span></dd></div>
-<div><dt><span class="en">Exact duplicates</span><span class="zh">完全重复</span></dt><dd class="num">1</dd><dd class="note"><span class="en">Removed from output, kept in the audit</span><span class="zh">移出主表，仍可在清单中追溯</span></dd></div>
+<div><dt><span class="en">Set aside for review</span><span class="zh">单独列出，待确认</span></dt><dd class="num">3</dd><dd class="note"><span class="en">Conflicts &amp; missing identifiers</span><span class="zh">编号冲突、编号缺失的记录</span></dd></div>
+<div><dt><span class="en">Exact duplicates removed</span><span class="zh">移出的完全重复记录</span></dt><dd class="num">1</dd><dd class="note"><span class="en">Removed from output, kept in the audit</span><span class="zh">移出主表，仍可在清单中追溯</span></dd></div>
 </dl>
 <div class="track" aria-hidden="true"><span style="flex:5;background:#85c9b1"></span><span style="flex:3;background:#e9bf70"></span><span style="flex:1;background:#9cb3c9"></span></div>
-<p class="reconciled"><span>5 + 3 + 1 = 9</span><span class="en">Counts match</span><span class="zh">数量对得上</span></p>
+<p class="reconciled"><span>5 + 3 + 1 = 9</span><span class="en">Counts add up ✓</span><span class="zh">数量核对一致 ✓</span></p>
 </div>
 </section>
 <section class="section" id="records">
-<h2><span class="en">Records</span><span class="zh">记录</span></h2>
+<h2><span class="en">The three kinds of results</span><span class="zh">三类结果</span></h2>
 <p class="note"><span class="en">Switch views to inspect each outcome. Up to 20 records per view; CSVs include every row.</span><span class="zh">切换下方标签，查看不同处理结果。各预览最多 20 条，CSV 包含完整记录。</span></p>
 <div class="workspace">
 <div class="tabs" role="tablist" aria-label="Record outcomes">
@@ -261,25 +261,25 @@ html[lang="zh-CN"] .zh{display:inline}
 <button class="tab" id="tab-duplicates" role="tab" aria-selected="false" aria-controls="panel-duplicates" tabindex="-1"><span class="en">Duplicates</span><span class="zh">重复记录</span><span class="count">1</span></button>
 </div>
 <div id="panel-clean" role="tabpanel" aria-labelledby="tab-clean">
-<div class="panel-intro"><span class="en">A consistent file, ready for your next step. IDs and decimal strings stay intact in the CSV.</span><span class="zh">格式统一，方便继续处理。CSV 中的编号与金额小数位保持为文本。</span></div>
+<div class="panel-intro"><span class="en">The merged table. IDs and decimal places stay as text in the CSV.</span><span class="zh">整理后的主表。CSV 里的编号和金额小数位仍是文本。</span></div>
 <div class="scroll" tabindex="0"><table><thead><tr><th scope="col">order_id</th><th scope="col">customer</th><th scope="col">amount</th><th scope="col">currency</th><th scope="col">note</th><th scope="col"><span class="en">Source · line</span><span class="zh">来源 · 行号</span></th></tr></thead><tbody><tr><td class="cell-value">00001</td><td class="cell-value">Alice</td><td class="cell-value">19.90</td><td class="cell-value">USD</td><td class="cell-value">first order</td><td class="source-ref">batch-a.csv · 2</td></tr><tr><td class="cell-value">00002</td><td class="cell-value">Bob</td><td class="cell-value">10.00</td><td class="cell-value">USD</td><td class="cell-value"></td><td class="source-ref">batch-a.csv · 3</td></tr><tr><td class="cell-value">00005</td><td class="cell-value">Eli</td><td class="cell-value">5.00</td><td class="cell-value">USD</td><td class="cell-value"></td><td class="source-ref">batch-a.csv · 5</td></tr><tr><td class="cell-value">00004</td><td class="cell-value">Dana</td><td class="cell-value">12.50</td><td class="cell-value">USD</td><td class="cell-value">quoted, comma</td><td class="source-ref">batch-b.csv · 3</td></tr><tr><td class="cell-value">00006</td><td class="cell-value">示例用户</td><td class="cell-value">0.00</td><td class="cell-value">USD</td><td class="cell-value">synthetic data</td><td class="source-ref">batch-b.csv · 6</td></tr></tbody></table></div>
 <div class="panel-footer"><span>clean.csv</span><span>5 <span class="en">total records</span><span class="zh">条完整记录</span></span></div>
 </div>
 <div id="panel-review" role="tabpanel" aria-labelledby="tab-review" hidden>
-<div class="panel-intro"><span class="en">Decide with the source in view. Conflicting versions stay together. No value is guessed.</span><span class="zh">对照来源，再做决定。冲突版本全部保留，不猜测哪一条正确。</span></div>
+<div class="panel-intro"><span class="en">Check these against the source. Conflicting versions are all kept. The tool does not pick a winner.</span><span class="zh">对照来源再决定。冲突的版本都会留下，不会替你选哪一条对。</span></div>
 <div class="scroll" tabindex="0"><table><thead><tr><th scope="col"><span class="en">Reason</span><span class="zh">原因</span></th><th scope="col">order_id</th><th scope="col">customer</th><th scope="col">amount</th><th scope="col">currency</th><th scope="col">note</th><th scope="col"><span class="en">Source · line</span><span class="zh">来源 · 行号</span></th></tr></thead><tbody><tr><td><span class="reason"><span class="en">Conflicting ID</span><span class="zh">编号冲突</span></span></td><td class="cell-value">00003</td><td class="cell-value">陈同学</td><td class="cell-value">8.00</td><td class="cell-value">USD</td><td class="cell-value">needs confirmation</td><td class="source-ref">batch-a.csv · 4</td></tr><tr><td><span class="reason"><span class="en">Conflicting ID</span><span class="zh">编号冲突</span></span></td><td class="cell-value">00003</td><td class="cell-value">陈同学</td><td class="cell-value">9.00</td><td class="cell-value">USD</td><td class="cell-value">needs confirmation</td><td class="source-ref">batch-b.csv · 4</td></tr><tr><td><span class="reason"><span class="en">Missing ID</span><span class="zh">编号缺失</span></span></td><td class="cell-value"></td><td class="cell-value">Missing identifier</td><td class="cell-value">13.00</td><td class="cell-value">USD</td><td class="cell-value">needs an ID</td><td class="source-ref">batch-b.csv · 5</td></tr></tbody></table></div>
 <div class="panel-footer"><span>exceptions.csv</span><span>3 <span class="en">total records</span><span class="zh">条完整记录</span></span></div>
 </div>
 <div id="panel-duplicates" role="tabpanel" aria-labelledby="tab-duplicates" hidden>
-<div class="panel-intro"><span class="en">Nothing disappears without a trace. These full rows matched an earlier record after the agreed rules.</span><span class="zh">移出了，也查得到。这些记录在执行本次规则后，与之前的整行内容完全一致。</span></div>
+<div class="panel-intro"><span class="en">Removed from the main table, still in this list. After the selected rules, these full rows matched an earlier record.</span><span class="zh">主表里去掉了，清单里还能看到。按这次规则处理后，这些行与之前的整行内容完全一样。</span></div>
 <div class="scroll" tabindex="0"><table><thead><tr><th scope="col"><span class="en">Reason</span><span class="zh">原因</span></th><th scope="col">order_id</th><th scope="col">customer</th><th scope="col">amount</th><th scope="col">currency</th><th scope="col">note</th><th scope="col"><span class="en">Source · line</span><span class="zh">来源 · 行号</span></th></tr></thead><tbody><tr><td><span class="reason duplicate"><span class="en">Exact duplicate</span><span class="zh">完全重复</span></span></td><td class="cell-value">00001</td><td class="cell-value">Alice</td><td class="cell-value">19.90</td><td class="cell-value">USD</td><td class="cell-value">first order</td><td class="source-ref">batch-b.csv · 2</td></tr></tbody></table></div>
 <div class="panel-footer"><span>duplicates.csv</span><span>1 <span class="en">total records</span><span class="zh">条完整记录</span></span></div>
 </div>
 </div>
 </section>
 <section class="section" id="files">
-<h2><span class="en">Delivery files</span><span class="zh">交付文件</span></h2>
-<p class="note"><span class="en">Open formats, with a record of what changed.</span><span class="zh">通用格式，附带处理记录。</span></p>
+<h2><span class="en">The output files</span><span class="zh">这些结果文件</span></h2>
+<p class="note"><span class="en">CSV and JSON, plus a record of what the tool did.</span><span class="zh">CSV 和 JSON，并附上这次处理的记录。</span></p>
 <ul class="files">
 <li><a href="clean.csv" download><span class="file-name">clean.csv</span><span class="file-note"><span class="en">The merged output, under the selected rules.</span><span class="zh">按本次规则整理、合并后的主表。</span></span></a></li>
 <li><a href="exceptions.csv" download><span class="file-name">exceptions.csv</span><span class="file-note"><span class="en">What needs a decision, and where to look.</span><span class="zh">待确认的内容、原因和原始位置。</span></span></a></li>
@@ -294,7 +294,7 @@ html[lang="zh-CN"] .zh{display:inline}
 <p class="guide"><strong><span class="en">Opening in Excel?</span><span class="zh">需要用 Excel 查看？</span></strong> <span class="en">Use Data → From Text/CSV and import identifier columns as Text to keep leading zeroes. This report checks the selected rules; business decisions stay with you.</span><span class="zh">请用“数据 → 从文本/CSV”导入，并把编号列设为文本，保留前导零。本报告核对本次规则的执行结果，业务内容仍由你确认。</span></p>
 </main>
 <footer>
-<span><span class="en">CSV delivery</span><span class="zh">CSV 交付</span></span>
+<span><span class="en">CSV delivery</span><span class="zh">CSV 整理交付</span> · <span class="en">A local report of this run</span><span class="zh">这次运行的本地报告</span></span>
 <span><span class="en">Self-contained report · No external scripts or fonts</span><span class="zh">独立本地报告 · 无外部脚本或字体</span></span>
 </footer>
 </div>
@@ -302,7 +302,7 @@ html[lang="zh-CN"] .zh{display:inline}
 const tabs=Array.from(document.querySelectorAll('[role="tab"]'));
 function activate(tab,focus=false){for(const item of tabs){const active=item===tab;item.setAttribute('aria-selected',String(active));item.tabIndex=active?0:-1;document.getElementById(item.getAttribute('aria-controls')).hidden=!active;}if(focus)tab.focus();}
 for(const tab of tabs){tab.addEventListener('click',()=>activate(tab));tab.addEventListener('keydown',event=>{let index=tabs.indexOf(tab);if(event.key==='ArrowRight')index=(index+1)%tabs.length;else if(event.key==='ArrowLeft')index=(index-1+tabs.length)%tabs.length;else if(event.key==='Home')index=0;else if(event.key==='End')index=tabs.length-1;else return;event.preventDefault();activate(tabs[index],true);});}
-document.getElementById('language').addEventListener('click',event=>{const chinese=document.documentElement.lang==='en';document.documentElement.lang=chinese?'zh-CN':'en';event.currentTarget.textContent=chinese?'English':'中文';event.currentTarget.setAttribute('aria-label',chinese?'切换为英文':'Switch to Chinese');document.title=chinese?'CSV 交付 · 处理结果':'CSV delivery · results';});
+document.getElementById('language').addEventListener('click',event=>{const chinese=document.documentElement.lang==='en';document.documentElement.lang=chinese?'zh-CN':'en';event.currentTarget.textContent=chinese?'English':'中文';event.currentTarget.setAttribute('aria-label',chinese?'切换为英文':'Switch to Chinese');document.title=chinese?'CSV 整理结果':'CSV delivery results';});
 </script>
 </body>
 </html>
